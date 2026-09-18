@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickOrder</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f3f6f9;color:#17202a}
+.container{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{width:100%;max-width:460px;background:white;border-radius:25px;padding:28px;box-shadow:0 15px 50px rgba(0,0,0,.10)}
+.logo{font-size:25px;font-weight:bold;margin-bottom:30px}.logo span{color:#08a66c}
+.page{display:none}.page.active{display:block}
+.small-title{color:#08a66c;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+h1{font-size:29px;margin-bottom:10px}.description{color:#6b7682;line-height:1.5;margin-bottom:25px}
+label{display:block;font-weight:bold;font-size:14px;margin:15px 0 7px}
+input,textarea{width:100%;border:1px solid #d9e0e6;border-radius:13px;padding:14px;font-size:16px;outline:none}
+input:focus,textarea:focus{border-color:#08a66c}textarea{resize:none}
+button{width:100%;border:0;border-radius:13px;padding:15px;margin-top:18px;background:#08a66c;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+button:hover{opacity:.9}.secondary,.back{background:#edf1f4;color:#27313b}
+.otp-box{display:flex;gap:10px}.otp-box input{text-align:center;font-size:25px;font-weight:bold}
+.upload-box{border:2px dashed #ccd5dd;border-radius:15px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px}
+.upload-box img{max-width:100%;max-height:220px;border-radius:12px;display:none;margin:auto}.upload-text{color:#6e7b87}
+.review{background:#f7f9fa;border-radius:15px;padding:15px}.review img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:none}
+.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #e3e8ec;font-size:14px}.row:last-child{border-bottom:0}
+.success{text-align:center;padding:10px 0}.success-icon{width:80px;height:80px;border-radius:50%;background:#e5f8f0;color:#08a66c;display:flex;justify-content:center;align-items:center;font-size:45px;margin:0 auto 20px}
+.order-id{display:inline-block;background:#f0f3f5;padding:12px 18px;border-radius:10px;font-weight:bold;margin-top:10px}
+.note{color:#7b8791;font-size:12px;line-height:1.5;margin-top:15px;text-align:center}
+.notification{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#17202a;color:white;padding:13px 18px;border-radius:12px;display:none;z-index:100;font-size:14px;box-shadow:0 8px 25px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+<div class="container"><div class="card">
+<div class="logo">Quick<span>Order</span></div>
+
+<div class="page active" id="page1">
+<div class="small-title">Secure Login</div><h1>Welcome 👋</h1>
+<p class="description">Apna mobile number enter kijiye. Verification ke liye OTP bheja jayega.</p>
+<label>Mobile Number</label><input id="loginPhone" type="tel" maxlength="10" inputmode="numeric" placeholder="10-digit mobile number">
+<button onclick="sendOTP()">Send OTP</button><div class="note">Aapka mobile number secure rakha jayega.</div>
+</div>
+
+<div class="page" id="page2">
+<div class="small-title">Verification</div><h1>Enter OTP</h1><p class="description" id="otpMessage">OTP aapke mobile number par bheja gaya hai.</p>
+<div class="otp-box"><input type="tel" maxlength="1" inputmode="numeric"><input type="tel" maxlength="1" inputmode="numeric"><input type="tel" maxlength="1" inputmode="numeric"><input type="tel" maxlength="1" inputmode="numeric"></div>
+<button onclick="verifyOTP()">Verify & Continue</button><button class="secondary" onclick="sendOTP()">Resend OTP</button>
+<div class="note">Demo ke liye OTP: <b>1234</b></div>
+</div>
+
+<div class="page" id="page3">
+<div class="small-title">Product Details</div><h1>Add Product</h1><p class="description">Product ki photo aur customer ki information enter kijiye.</p>
+<label>Product Photo</label>
+<label class="upload-box" for="productImage"><div class="upload-text" id="uploadText">📷 Tap karke product image upload karein</div><img id="imagePreview"></label>
+<input id="productImage" type="file" accept="image/*" hidden onchange="showImage(event)">
+<label>Product Name</label><input id="productName" type="text" placeholder="Product ka naam">
+<label>Customer Name</label><input id="customerName" type="text" placeholder="Customer ka naam">
+<label>Customer Phone</label><input id="customerPhone" type="tel" maxlength="10" inputmode="numeric" placeholder="Customer mobile number">
+<label>Address / Other Details</label><textarea id="address" rows="4" placeholder="Address ya anya details"></textarea>
+<button onclick="nextToReview()">Next →</button>
+</div>
+
+<div class="page" id="page4">
+<div class="small-title">Review Order</div><h1>Check Details</h1><p class="description">Order place karne se pehle details check kar lijiye.</p>
+<div class="review"><img id="reviewImage">
+<div class="row"><span>Product</span><b id="reviewProduct"></b></div>
+<div class="row"><span>Customer</span><b id="reviewCustomer"></b></div>
+<div class="row"><span>Phone</span><b id="reviewPhone"></b></div>
+<div class="row"><span>Address</span><b id="reviewAddress"></b></div></div>
+<button onclick="placeOrder()">✓ Place Order</button><button class="secondary" onclick="showPage(3)">Edit Details</button>
+</div>
+
+<div class="page" id="page5">
+<div class="success"><div class="success-icon">✓</div><div class="small-title">Confirmed</div><h1>Order Placed!</h1>
+<p class="description">Your order has been placed successfully.<br>Thank you for your order!</p><div class="order-id" id="orderID">#ORD-000000</div></div>
+<button onclick="sendWhatsApp()">💬 Send Order on WhatsApp</button><button class="secondary" onclick="location.reload()">Create New Order</button>
+<div class="note">WhatsApp button order details ko WhatsApp mein prepare karega.</div>
+</div>
+</div></div>
+<div class="notification" id="notification">Notification</div>
+
+<script>
+let uploadedImage="",order={};
+function showPage(n){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page"+n).classList.add("active")}
+function notify(m){const n=document.getElementById("notification");n.innerText=m;n.style.display="block";setTimeout(()=>n.style.display="none",3000)}
+function sendOTP(){
+ const phone=document.getElementById("loginPhone").value.replace(/\D/g,"");
+ if(phone.length!==10){notify("Please enter a valid 10-digit mobile number.");return}
+ sessionStorage.setItem("loginPhone",phone);document.getElementById("otpMessage").innerText="OTP sent to +91 "+phone;showPage(2);notify("OTP sent successfully.")
+}
+document.querySelectorAll(".otp-box input").forEach((input,i)=>input.addEventListener("input",()=>{if(input.value&&i<3)document.querySelectorAll(".otp-box input")[i+1].focus()}));
+function verifyOTP(){
+ let otp="";document.querySelectorAll(".otp-box input").forEach(i=>otp+=i.value);
+ if(otp!=="1234"){notify("Invalid OTP. Demo OTP is 1234.");return}
+ notify("Mobile number verified successfully.");setTimeout(()=>showPage(3),700)
+}
+function showImage(e){
+ const file=e.target.files[0];if(!file)return;const reader=new FileReader();
+ reader.onload=e=>{uploadedImage=e.target.result;document.getElementById("imagePreview").src=uploadedImage;document.getElementById("imagePreview").style.display="block";document.getElementById("uploadText").style.display="none"};reader.readAsDataURL(file)
+}
+function nextToReview(){
+ const product=document.getElementById("productName").value.trim(),customer=document.getElementById("customerName").value.trim(),phone=document.getElementById("customerPhone").value.replace(/\D/g,""),address=document.getElementById("address").value.trim();
+ if(!product){notify("Product name enter karein.");return}if(!customer){notify("Customer name enter karein.");return}if(phone.length!==10){notify("Valid customer phone number enter karein.");return}
+ order={product,customer,phone,address};document.getElementById("reviewProduct").innerText=product;document.getElementById("reviewCustomer").innerText=customer;document.getElementById("reviewPhone").innerText=phone;document.getElementById("reviewAddress").innerText=address||"Not provided";
+ const img=document.getElementById("reviewImage");if(uploadedImage){img.src=uploadedImage;img.style.display="block"}else img.style.display="none";showPage(4)
+}
+function placeOrder(){
+ order.id="ORD-"+Math.floor(100000+Math.random()*900000);localStorage.setItem("lastOrder",JSON.stringify(order));document.getElementById("orderID").innerText="#"+order.id;showPage(5);
+ try{const s=new SpeechSynthesisUtterance("Your order has been placed successfully. Thank you for your order!");s.lang="en-IN";s.rate=.9;window.speechSynthesis.speak(s)}catch(e){}
+ notify("Order placed successfully!")
+}
+function sendWhatsApp(){
+ const message=`🛒 NEW ORDER
+
+Order ID: ${order.id}
+
+👤 Customer Name:
+${order.customer}
+
+📱 Customer Phone:
++91 ${order.phone}
+
+🛍️ Product:
+${order.product}
+
+📍 Address / Details:
+${order.address||"Not provided"}
+
+✅ Order Status:
+CONFIRMED
+
+Thank you!`;
+ window.open("https://wa.me/917031326090?text="+encodeURIComponent(message),"_blank")
+}
+</script>
+</body>
+</html>
