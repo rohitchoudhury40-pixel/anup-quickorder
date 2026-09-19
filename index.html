@@ -1,136 +1,1535 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuickOrder</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#f3f6f9;color:#17202a}
-.container{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
-.card{width:100%;max-width:460px;background:white;border-radius:25px;padding:28px;box-shadow:0 15px 50px rgba(0,0,0,.10)}
-.logo{font-size:25px;font-weight:bold;margin-bottom:30px}.logo span{color:#08a66c}
-.page{display:none}.page.active{display:block}
-.small-title{color:#08a66c;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-h1{font-size:29px;margin-bottom:10px}.description{color:#6b7682;line-height:1.5;margin-bottom:25px}
-label{display:block;font-weight:bold;font-size:14px;margin:15px 0 7px}
-input,textarea{width:100%;border:1px solid #d9e0e6;border-radius:13px;padding:14px;font-size:16px;outline:none}
-input:focus,textarea:focus{border-color:#08a66c}textarea{resize:none}
-button{width:100%;border:0;border-radius:13px;padding:15px;margin-top:18px;background:#08a66c;color:white;font-size:16px;font-weight:bold;cursor:pointer}
-button:hover{opacity:.9}.secondary,.back{background:#edf1f4;color:#27313b}
-.otp-box{display:flex;gap:10px}.otp-box input{text-align:center;font-size:25px;font-weight:bold}
-.upload-box{border:2px dashed #ccd5dd;border-radius:15px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px}
-.upload-box img{max-width:100%;max-height:220px;border-radius:12px;display:none;margin:auto}.upload-text{color:#6e7b87}
-.review{background:#f7f9fa;border-radius:15px;padding:15px}.review img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:none}
-.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #e3e8ec;font-size:14px}.row:last-child{border-bottom:0}
-.success{text-align:center;padding:10px 0}.success-icon{width:80px;height:80px;border-radius:50%;background:#e5f8f0;color:#08a66c;display:flex;justify-content:center;align-items:center;font-size:45px;margin:0 auto 20px}
-.order-id{display:inline-block;background:#f0f3f5;padding:12px 18px;border-radius:10px;font-weight:bold;margin-top:10px}
-.note{color:#7b8791;font-size:12px;line-height:1.5;margin-top:15px;text-align:center}
-.notification{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#17202a;color:white;padding:13px 18px;border-radius:12px;display:none;z-index:100;font-size:14px;box-shadow:0 8px 25px rgba(0,0,0,.2)}
+<!DOCTYPE html>  <html lang="en" class="light">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>QuickOrder - Instant Store & Management</title>  
+    <!-- Tailwind CSS CDN -->  
+    <script src="https://cdn.tailwindcss.com"></script>  
+    <script>  
+        tailwind.config = {  
+            darkMode: 'class',  
+            theme: {  
+                extend: {  
+                    colors: {  
+                        lightBg: '#ffffff',  
+                        cardLight: '#ffffff',  
+                        borderLight: '#e2e8f0',  
+                        darkBg: '#0b0f17',  
+                        cardBg: '#131c2e',  
+                        cardBorder: '#1e293b',  
+                        accent: '#6366f1',  
+                        accentHover: '#4f46e5'  
+                    }  
+                }  
+            }  
+        }  
+    </script>  
+    <!-- FontAwesome Icons -->  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
+    <!-- Google Fonts Inter -->  
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">  
+    <!-- Supabase JS SDK -->  
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  
+    <style>  
+        body {  
+            font-family: 'Inter', sans-serif;  
+            transition: background-color 0.3s ease, color 0.3s ease;  
+        }  
+        /* Light mode defaults (Strict White) */  
+        body.light {  
+            background-color: #ffffff;  
+            color: #0f172a;  
+        }  
+        body.light .app-card {  
+            background-color: #ffffff;  
+            border-color: #e2e8f0;  
+            color: #0f172a;  
+        }  
+        body.light .app-input {  
+            background-color: #f8fafc;  
+            border-color: #cbd5e1;  
+            color: #0f172a;  
+        }  
+        body.light .app-header {  
+            background-color: rgba(255, 255, 255, 0.95);  
+            border-color: #e2e8f0;  
+        }  /* Dark mode overrides */  
+    body.dark {  
+        background-color: #0b0f17;  
+        color: #f8fafc;  
+    }  
+    body.dark .app-card {  
+        background-color: #131c2e;  
+        border-color: #1e293b;  
+        color: #f8fafc;  
+    }  
+    body.dark .app-input {  
+        background-color: #0b0f17;  
+        border-color: #1e293b;  
+        color: #f8fafc;  
+    }  
+    body.dark .app-header {  
+        background-color: rgba(11, 15, 23, 0.95);  
+        border-color: #1e293b;  
+    }  
+
+    ::-webkit-scrollbar {  
+        width: 6px;  
+        height: 6px;  
+    }  
+    ::-webkit-scrollbar-thumb {  
+        background: #cbd5e1;  
+        border-radius: 3px;  
+    }  
+    body.dark ::-webkit-scrollbar-thumb {  
+        background: #1e293b;  
+    }  
+    .fade-in {  
+        animation: fadeIn 0.3s ease-in-out forwards;  
+    }  
+    @keyframes fadeIn {  
+        from { opacity: 0; transform: translateY(6px); }  
+        to { opacity: 1; transform: translateY(0); }  
+    }  
+    @keyframes slideDownTimeline {  
+        from { opacity: 0; transform: translateY(-10px); height: 0; }  
+        to { opacity: 1; transform: translateY(0); height: 100%; }  
+    }  
+    .timeline-step-anim {  
+        animation: slideDownTimeline 0.4s ease-out forwards;  
+    }  
 </style>
-</head>
-<body>
-<div class="container"><div class="card">
-<div class="logo">Quick<span>Order</span></div>
 
-<div class="page active" id="page1">
-<div class="small-title">Secure Login</div><h1>Welcome 👋</h1>
-<p class="description">Apna mobile number enter kijiye. Verification ke liye OTP bheja jayega.</p>
-<label>Mobile Number</label><input id="loginPhone" type="tel" maxlength="10" inputmode="numeric" placeholder="10-digit mobile number">
-<button onclick="sendOTP()">Send OTP</button><div class="note">Aapka mobile number secure rakha jayega.</div>
-</div>
+</head>  
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">  <header class="sticky top-0 z-40 app-header backdrop-blur-md border-b">  
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">  
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">  
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-white">  
+                <i class="fa-solid fa-bolt text-lg"></i>  
+            </div>  
+            <div>  
+                <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-500 bg-clip-text text-transparent">QuickOrder</span>  
+                <span class="block text-[10px] text-indigo-500 font-medium tracking-widest uppercase">Instant Store</span>  
+            </div>  
+        </div>  
 
-<div class="page" id="page2">
-<div class="small-title">Verification</div><h1>Enter OTP</h1><p class="description" id="otpMessage">OTP aapke mobile number par bheja gaya hai.</p>
-<div class="otp-box"><input type="tel" maxlength="1" inputmode="numeric"><input type="tel" maxlength="1" inputmode="numeric"><input type="tel" maxlength="1" inputmode="numeric"><input type="tel" maxlength="1" inputmode="numeric"></div>
-<button onclick="verifyOTP()">Verify & Continue</button><button class="secondary" onclick="sendOTP()">Resend OTP</button>
-<div class="note">Demo ke liye OTP: <b>1234</b></div>
-</div>
+        <!-- Navigation Links -->  
+        <nav class="hidden md:flex items-center space-x-1">  
+            <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition bg-indigo-600 text-white shadow-md shadow-indigo-600/25 flex items-center gap-1.5"><i class="fa-solid fa-bolt text-xs"></i> ⚡ New Order</button>  
+            <button onclick="switchTab('profile')" id="nav-profile" class="px-4 py-2 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-user text-xs"></i> 👤 My Panel</button>  
+            <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-lock text-xs"></i> 🔒 Admin</button>  
+        </nav>  
 
-<div class="page" id="page3">
-<div class="small-title">Product Details</div><h1>Add Product</h1><p class="description">Product ki photo aur customer ki information enter kijiye.</p>
-<label>Product Photo</label>
-<label class="upload-box" for="productImage"><div class="upload-text" id="uploadText">📷 Tap karke product image upload karein</div><img id="imagePreview"></label>
-<input id="productImage" type="file" accept="image/*" hidden onchange="showImage(event)">
-<label>Product Name</label><input id="productName" type="text" placeholder="Product ka naam">
-<label>Customer Name</label><input id="customerName" type="text" placeholder="Customer ka naam">
-<label>Customer Phone</label><input id="customerPhone" type="tel" maxlength="10" inputmode="numeric" placeholder="Customer mobile number">
-<label>Address / Other Details</label><textarea id="address" rows="4" placeholder="Address ya anya details"></textarea>
-<button onclick="nextToReview()">Next →</button>
-</div>
+        <div class="flex items-center space-x-3">  
+            <!-- Theme Selector (System / Light / Dark) -->  
+            <div class="relative">  
+                <select id="theme-selector" onchange="changeTheme(this.value)" class="app-input text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition cursor-pointer shadow-sm">  
+                    <option value="system">💻 System</option>  
+                    <option value="light">☀️ Light</option>  
+                    <option value="dark">🌙 Dark</option>  
+                </select>  
+            </div>  
 
-<div class="page" id="page4">
-<div class="small-title">Review Order</div><h1>Check Details</h1><p class="description">Order place karne se pehle details check kar lijiye.</p>
-<div class="review"><img id="reviewImage">
-<div class="row"><span>Product</span><b id="reviewProduct"></b></div>
-<div class="row"><span>Customer</span><b id="reviewCustomer"></b></div>
-<div class="row"><span>Phone</span><b id="reviewPhone"></b></div>
-<div class="row"><span>Address</span><b id="reviewAddress"></b></div></div>
-<button onclick="placeOrder()">✓ Place Order</button><button class="secondary" onclick="showPage(3)">Edit Details</button>
-</div>
+            <!-- Customer Profile Quick Pill -->  
+            <div id="auth-user-badge" class="hidden items-center gap-2 app-card border px-3 py-1.5 rounded-xl shadow-sm">  
+                <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white" id="auth-avatar-letter">U</div>  
+                <span id="auth-name-display" class="text-xs font-semibold truncate max-w-[100px]">User</span>  
+                <button onclick="handleCustomerLogout()" class="text-xs text-rose-500 hover:text-rose-600 ml-1" title="Switch Account"><i class="fa-solid fa-right-from-bracket"></i></button>  
+            </div>  
+            <button id="auth-login-btn" onclick="openAuthModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-2 shadow-md shadow-indigo-600/30">  
+                <i class="fa-brands fa-whatsapp text-base"></i> 💬 WhatsApp Login  
+            </button>  
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 rounded-xl app-card border text-slate-600 dark:text-slate-300">  
+                <i class="fa-solid fa-bars text-lg"></i>  
+            </button>  
+        </div>  
+    </div>  
 
-<div class="page" id="page5">
-<div class="success"><div class="success-icon">✓</div><div class="small-title">Confirmed</div><h1>Order Placed!</h1>
-<p class="description">Your order has been placed successfully.<br>Thank you for your order!</p><div class="order-id" id="orderID">#ORD-000000</div></div>
-<button onclick="sendWhatsApp()">💬 Send Order on WhatsApp</button><button class="secondary" onclick="location.reload()">Create New Order</button>
-<div class="note">WhatsApp button order details ko WhatsApp mein prepare karega.</div>
-</div>
-</div></div>
-<div class="notification" id="notification">Notification</div>
+    <!-- Mobile Navigation Menu -->  
+    <div id="mobile-menu" class="hidden md:hidden border-t app-header px-4 py-3 space-y-2">  
+        <button onclick="switchTab('home'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-indigo-600 dark:text-white bg-indigo-50 dark:bg-slate-800">⚡ New Order</button>  
+        <button onclick="switchTab('profile'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300">👤 My Panel</button>  
+        <button onclick="switchTab('admin'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300">🔒 Admin Panel</button>  
+    </div>  
+</header>  
 
-<script>
-let uploadedImage="",order={};
-function showPage(n){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page"+n).classList.add("active")}
-function notify(m){const n=document.getElementById("notification");n.innerText=m;n.style.display="block";setTimeout(()=>n.style.display="none",3000)}
-function sendOTP(){
- const phone=document.getElementById("loginPhone").value.replace(/\D/g,"");
- if(phone.length!==10){notify("Please enter a valid 10-digit mobile number.");return}
- sessionStorage.setItem("loginPhone",phone);document.getElementById("otpMessage").innerText="OTP sent to +91 "+phone;showPage(2);notify("OTP sent successfully.")
-}
-document.querySelectorAll(".otp-box input").forEach((input,i)=>input.addEventListener("input",()=>{if(input.value&&i<3)document.querySelectorAll(".otp-box input")[i+1].focus()}));
-function verifyOTP(){
- let otp="";document.querySelectorAll(".otp-box input").forEach(i=>otp+=i.value);
- if(otp!=="1234"){notify("Invalid OTP. Demo OTP is 1234.");return}
- notify("Mobile number verified successfully.");setTimeout(()=>showPage(3),700)
-}
-function showImage(e){
- const file=e.target.files[0];if(!file)return;const reader=new FileReader();
- reader.onload=e=>{uploadedImage=e.target.result;document.getElementById("imagePreview").src=uploadedImage;document.getElementById("imagePreview").style.display="block";document.getElementById("uploadText").style.display="none"};reader.readAsDataURL(file)
-}
-function nextToReview(){
- const product=document.getElementById("productName").value.trim(),customer=document.getElementById("customerName").value.trim(),phone=document.getElementById("customerPhone").value.replace(/\D/g,""),address=document.getElementById("address").value.trim();
- if(!product){notify("Product name enter karein.");return}if(!customer){notify("Customer name enter karein.");return}if(phone.length!==10){notify("Valid customer phone number enter karein.");return}
- order={product,customer,phone,address};document.getElementById("reviewProduct").innerText=product;document.getElementById("reviewCustomer").innerText=customer;document.getElementById("reviewPhone").innerText=phone;document.getElementById("reviewAddress").innerText=address||"Not provided";
- const img=document.getElementById("reviewImage");if(uploadedImage){img.src=uploadedImage;img.style.display="block"}else img.style.display="none";showPage(4)
-}
-function placeOrder(){
- order.id="ORD-"+Math.floor(100000+Math.random()*900000);localStorage.setItem("lastOrder",JSON.stringify(order));document.getElementById("orderID").innerText="#"+order.id;showPage(5);
- try{const s=new SpeechSynthesisUtterance("Your order has been placed successfully. Thank you for your order!");s.lang="en-IN";s.rate=.9;window.speechSynthesis.speak(s)}catch(e){}
- notify("Order placed successfully!")
-}
-function sendWhatsApp(){
- const message=`🛒 NEW ORDER
+<div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">  
+    <div class="app-card border rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative fade-in">  
+        <div id="auth-step-method">  
+            <div class="text-center mb-6">  
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/30 text-white text-2xl">  
+                    <i class="fa-brands fa-whatsapp"></i>  
+                </div>  
+                <h3 class="text-xl font-bold">Customer WhatsApp Login</h3>  
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter your details. OTP sent instantly from merchant <span class="text-emerald-500 font-mono font-bold">7031326090</span>.</p>  
+            </div>  
 
-Order ID: ${order.id}
+            <form onsubmit="requestWhatsAppOTP(event)" class="space-y-4">  
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Full Name *</label>  
+                    <input type="text" id="auth-input-name" required placeholder="Enter your full name" class="w-full app-input border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">  
+                </div>  
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">WhatsApp Mobile Number * (Strict 10 Digits)</label>  
+                    <input type="tel" id="auth-input-phone" required placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" class="w-full app-input border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition font-mono">  
+                </div>  
+                <button type="submit" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition shadow-lg shadow-emerald-600/30 text-sm flex items-center justify-center gap-2">  
+                    <i class="fa-brands fa-whatsapp text-lg"></i> 💬 Send WhatsApp OTP  
+                </button>  
+            </form>  
+        </div>  
 
-👤 Customer Name:
-${order.customer}
+        <!-- WhatsApp OTP Verification Step -->  
+        <div id="auth-step-otp" class="hidden">  
+            <div class="text-center mb-6">  
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-3 text-emerald-500 text-2xl">  
+                    <i class="fa-brands fa-whatsapp"></i>  
+                </div>  
+                <h3 class="text-xl font-bold">Verify WhatsApp OTP</h3>  
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="otp-destination-label">OTP dispatched from 7031326090</p>  
+            </div>  
 
-📱 Customer Phone:
-+91 ${order.phone}
+            <div class="mb-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 text-center text-xs text-emerald-600 dark:text-emerald-300">  
+                <i class="fa-solid fa-circle-check mr-1"></i> Automated OTP sent from merchant <span class="font-mono font-bold">7031326090</span>.  
+            </div>  
 
-🛍️ Product:
-${order.product}
+            <form onsubmit="verifyWhatsAppOTP(event)" class="space-y-4">  
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">6-Digit OTP Code</label>  
+                    <input type="text" id="auth-input-otp-code" required maxlength="6" pattern="[0-9]{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);" placeholder="------" class="w-full app-input border rounded-2xl px-4 py-3 text-center text-xl tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">  
+                </div>  
+                <button type="submit" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition shadow-lg shadow-indigo-600/30 text-sm flex items-center justify-center gap-2">  
+                    <i class="fa-solid fa-check-circle"></i> ✨ Verify & Open Store  
+                </button>  
+                <button type="button" onclick="resetAuthModal()" class="w-full py-2 text-xs text-slate-500 hover:text-indigo-600 transition">  
+                    ← Back to login  
+                </button>  
+            </form>  
+        </div>  
+    </div>  
+</div>  
 
-📍 Address / Details:
-${order.address||"Not provided"}
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">  
 
-✅ Order Status:
-CONFIRMED
+    <!-- TAB 1: CUSTOMER ORDER FORM -->  
+    <section id="tab-home" class="fade-in max-w-3xl mx-auto">  
+        <div class="app-card border rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">  
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>  
 
-Thank you!`;
- window.open("https://wa.me/917031326090?text="+encodeURIComponent(message),"_blank")
-}
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-slate-200 dark:border-[#1e293b] gap-4">  
+                <div>  
+                    <h1 class="text-2xl font-bold tracking-tight flex items-center gap-2">  
+                        <span>⚡</span> Place Quick Order  
+                    </h1>  
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Your verified WhatsApp details are locked. Fill product details to submit.</p>  
+                </div>  
+                <button type="button" onclick="fillDemoData()" class="self-start sm:self-auto px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-50 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 transition flex items-center gap-2 shadow-sm">  
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Demo Fill  
+                </button>  
+            </div>  
+
+            <form id="order-form" onsubmit="handleOrderSubmit(event)" class="space-y-6">  
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">  
+                    <div>  
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Customer Name (Locked) *</label>  
+                        <div class="relative">  
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-user"></i></span>  
+                            <input type="text" id="cust-name" required readonly class="w-full app-input border rounded-2xl pl-10 pr-4 py-3 text-sm opacity-90 cursor-not-allowed">  
+                        </div>  
+                    </div>  
+                    <div>  
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Phone Number (Strict 10 Digits Locked) *</label>  
+                        <div class="relative">  
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-phone"></i></span>  
+                            <input type="tel" id="cust-phone" required readonly maxlength="10" class="w-full app-input border rounded-2xl pl-10 pr-4 py-3 text-sm opacity-90 cursor-not-allowed font-mono">  
+                        </div>  
+                    </div>  
+                </div>  
+
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Delivery Address *</label>  
+                    <div class="relative">  
+                        <span class="absolute inset-y-0 left-0 pl-3.5 pt-3 pointer-events-none text-slate-400"><i class="fa-solid fa-location-dot"></i></span>  
+                        <textarea id="cust-address" required rows="2" placeholder="House no, Street, Landmark, City..." class="w-full app-input border rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition resize-none"></textarea>  
+                    </div>  
+                </div>  
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">  
+                    <div>  
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Product Name * (Mandatory)</label>  
+                        <div class="relative">  
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-box"></i></span>  
+                            <input type="text" id="prod-name" required placeholder="Product title" class="w-full app-input border rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">  
+                        </div>  
+                    </div>  
+                    <div>  
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Price (₹) *</label>  
+                        <div class="relative">  
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400"><i class="fa-solid fa-indian-rupee-sign"></i></span>  
+                            <input type="number" id="prod-price" required min="1" placeholder="0.00" class="w-full app-input border rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">  
+                        </div>  
+                    </div>  
+                </div>  
+
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Product Image * (Mandatory Upload)</label>  
+                    <div class="flex items-center gap-4">  
+                        <label class="flex-grow cursor-pointer app-input border hover:border-indigo-500 rounded-2xl px-4 py-3 flex items-center gap-3 transition">  
+                            <i class="fa-solid fa-cloud-arrow-up text-indigo-500 text-lg"></i>  
+                            <span id="file-chosen-text" class="text-sm text-slate-500 truncate">Choose product image required...</span>  
+                            <input type="file" id="prod-image-file" accept="image/*" required onchange="previewImage(event)" class="hidden">  
+                        </label>  
+                        <div id="image-preview-container" class="hidden w-14 h-14 rounded-2xl border overflow-hidden bg-slate-900 flex-shrink-0 relative">  
+                            <img id="image-preview" src="" alt="Preview" class="w-full h-full object-cover">  
+                        </div>  
+                    </div>  
+                </div>  
+
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Auto-Calculated Delivery Date (+7 Days)</label>  
+                    <input type="text" id="del-date-display" readonly class="w-full app-input border rounded-2xl px-4 py-3 text-sm font-semibold text-indigo-600 dark:text-indigo-400 opacity-90 cursor-not-allowed">  
+                </div>  
+
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Additional Note / Instructions</label>  
+                    <textarea id="order-note" rows="2" placeholder="Any special instructions for delivery..." class="w-full app-input border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition resize-none"></textarea>  
+                </div>  
+
+                <button type="button" onclick="openReviewModal()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-base">  
+                    <span>✨</span> Review Order  
+                </button>  
+            </form>  
+        </div>  
+    </section>  
+
+    <!-- TAB 2: CUSTOMER PANEL & ORDER HISTORY -->  
+    <section id="tab-profile" class="fade-in max-w-4xl mx-auto hidden space-y-6">  
+        <div class="app-card border rounded-3xl p-6 sm:p-8 shadow-xl">  
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-slate-200 dark:border-[#1e293b] gap-4">  
+                <div>  
+                    <h2 class="text-2xl font-bold flex items-center gap-2">  
+                        <span>👤</span> My Customer Panel  
+                    </h2>  
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Logged in as <span id="profile-user-name" class="font-bold text-indigo-600 dark:text-indigo-400">User</span> (<span id="profile-user-phone" class="font-mono">---</span>)</p>  
+                </div>  
+                <div class="flex items-center gap-3">  
+                    <button onclick="openHelpAgent()" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 transition flex items-center gap-2 shadow-sm">  
+                        <i class="fa-solid fa-headset"></i> 🤖 AI Help Agent  
+                    </button>  
+                    <button onclick="handleCustomerLogout()" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 transition flex items-center gap-2 shadow-sm">  
+                        <i class="fa-solid fa-right-from-bracket"></i> 🔄 Switch Account  
+                    </button>  
+                </div>  
+            </div>  
+
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">  
+                <span>📦</span> My Order History  
+            </h3>  
+            <div id="customer-my-orders-list" class="space-y-4">  
+                <!-- Dynamic orders -->  
+            </div>  
+        </div>  
+    </section>  
+
+    <section id="tab-admin" class="fade-in hidden">  
+        <!-- Admin Login Card (Invisible Passcode 707) -->  
+        <div id="admin-login-card" class="max-w-md mx-auto app-card border rounded-3xl p-8 shadow-xl">  
+            <div class="text-center mb-8">  
+                <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center mx-auto mb-4 text-indigo-600 dark:text-indigo-400 text-2xl">  
+                    <i class="fa-solid fa-shield-halved"></i>  
+                </div>  
+                <h2 class="text-xl font-bold">Admin Portal</h2>  
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter credentials to access secure management.</p>  
+            </div>  
+
+            <form onsubmit="handleAdminLogin(event)" class="space-y-5">  
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Admin Name</label>  
+                    <input type="text" id="admin-name" required placeholder="Enter name" class="w-full app-input border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">  
+                </div>  
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Mobile Number (Strict 10 Digits)</label>  
+                    <input type="tel" id="admin-phone" required placeholder="10-digit mobile" maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" class="w-full app-input border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition font-mono">  
+                </div>  
+                <div>  
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Passcode (PIN)</label>  
+                    <input type="password" id="admin-pass" required placeholder="Enter passcode" class="w-full app-input border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">  
+                </div>  
+                <button type="submit" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-lg shadow-indigo-600/30">  
+                    🚀 Login to Dashboard  
+                </button>  
+            </form>  
+        </div>  
+
+        <!-- Admin Dashboard Content -->  
+        <div id="admin-dashboard" class="hidden space-y-6">  
+            <div class="flex flex-col md:flex-row md:items-center justify-between app-card border rounded-3xl p-6 gap-4">  
+                <div>  
+                    <h2 class="text-xl font-bold flex items-center gap-2">  
+                        <span>📊</span> Admin Dashboard  
+                    </h2>  
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Logged in as <span id="logged-admin-name" class="text-indigo-600 dark:text-indigo-400 font-bold">Admin</span> | Merchant WhatsApp: <span class="text-emerald-500 font-mono">7031326090</span></p>  
+                </div>  
+                <div class="flex flex-wrap items-center gap-3">  
+                    <button onclick="exportDataBackup()" class="px-4 py-2.5 rounded-xl text-xs font-semibold app-input border transition flex items-center gap-2 shadow-sm">  
+                        <i class="fa-solid fa-download text-indigo-500"></i> 💾 Export Backup  
+                    </button>  
+                    <button onclick="loadAdminData()" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-indigo-50 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 transition flex items-center gap-2 shadow-sm">  
+                        <i class="fa-solid fa-rotate"></i> 🔄 Refresh  
+                    </button>  
+                    <button onclick="handleAdminLogout()" class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 transition flex items-center gap-2 shadow-sm">  
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout  
+                    </button>  
+                </div>  
+            </div>  
+
+            <!-- Stats Grid -->  
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">  
+                <div class="app-card border rounded-3xl p-5 shadow-sm">  
+                    <div class="flex items-center justify-between mb-3">  
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Orders</span>  
+                        <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"><i class="fa-solid fa-bag-shopping"></i></div>  
+                    </div>  
+                    <div class="text-2xl font-bold" id="stat-total-orders">0</div>  
+                </div>  
+                <div class="app-card border rounded-3xl p-5 shadow-sm">  
+                    <div class="flex items-center justify-between mb-3">  
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Revenue</span>  
+                        <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-indian-rupee-sign"></i></div>  
+                    </div>  
+                    <div class="text-2xl font-bold" id="stat-total-revenue">₹0</div>  
+                </div>  
+                <div class="app-card border rounded-3xl p-5 shadow-sm">  
+                    <div class="flex items-center justify-between mb-3">  
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Customers</span>  
+                        <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center"><i class="fa-solid fa-users"></i></div>  
+                    </div>  
+                    <div class="text-2xl font-bold" id="stat-total-customers">0</div>  
+                </div>  
+                <div class="app-card border rounded-3xl p-5 shadow-sm">  
+                    <div class="flex items-center justify-between mb-3">  
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Admin Logins</span>  
+                        <div class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center"><i class="fa-solid fa-user-shield"></i></div>  
+                    </div>  
+                    <div class="text-2xl font-bold" id="stat-total-admin-logins">0</div>  
+                </div>  
+            </div>  
+
+            <!-- Admin Management Tables -->  
+            <div class="app-card border rounded-3xl p-6 shadow-xl">  
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-slate-200 dark:border-[#1e293b] gap-4">  
+                    <div class="flex items-center space-x-2">  
+                        <button onclick="switchAdminTab('orders')" id="adm-tab-orders" class="px-4 py-2 rounded-xl text-xs font-semibold transition bg-indigo-600 text-white shadow-sm">Orders Management</button>  
+                        <button onclick="switchAdminTab('customers')" id="adm-tab-customers" class="px-4 py-2 rounded-xl text-xs font-semibold transition app-input text-slate-600 dark:text-slate-400">Customers</button>  
+                        <button onclick="switchAdminTab('activity')" id="adm-tab-activity" class="px-4 py-2 rounded-xl text-xs font-semibold transition app-input text-slate-600 dark:text-slate-400">Admin Activity</button>  
+                    </div>  
+                    <div class="flex items-center gap-3">  
+                        <input type="text" id="admin-search-input" oninput="filterAdminTable()" placeholder="Search orders..." class="app-input border rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-64">  
+                        <select id="admin-status-filter" onchange="filterAdminTable()" class="app-input border rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">  
+                            <option value="ALL">All Status</option>  
+                            <option value="Pending">Pending</option>  
+                            <option value="Confirmed">Confirmed</option>  
+                            <option value="Processing">Processing</option>  
+                            <option value="Out for Delivery">Out for Delivery</option>  
+                            <option value="Delivered">Delivered</option>  
+                            <option value="Cancelled">Cancelled</option>  
+                        </select>  
+                    </div>  
+                </div>  
+
+                <!-- Orders Table -->  
+                <div id="admin-view-orders" class="overflow-x-auto">  
+                    <table class="w-full text-left border-collapse">  
+                        <thead>  
+                            <tr class="border-b border-slate-200 dark:border-[#1e293b] text-xs font-semibold uppercase tracking-wider text-slate-500">  
+                                <th class="py-3 px-4">Order ID</th>  
+                                <th class="py-3 px-4">Customer</th>  
+                                <th class="py-3 px-4">Product</th>  
+                                <th class="py-3 px-4">Price</th>  
+                                <th class="py-3 px-4">Status & Timeline Broadcast</th>  
+                                <th class="py-3 px-4">WhatsApp Action</th>  
+                                <th class="py-3 px-4 text-right">Action</th>  
+                            </tr>  
+                        </thead>  
+                        <tbody id="admin-orders-tbody" class="divide-y divide-slate-200 dark:divide-[#1e293b] text-sm">  
+                            <!-- Dynamic rows -->  
+                        </tbody>  
+                    </table>  
+                </div>  
+
+                <!-- Customers Table -->  
+                <div id="admin-view-customers" class="overflow-x-auto hidden">  
+                    <table class="w-full text-left border-collapse">  
+                        <thead>  
+                            <tr class="border-b border-slate-200 dark:border-[#1e293b] text-xs font-semibold uppercase tracking-wider text-slate-500">  
+                                <th class="py-3 px-4">Customer Name</th>  
+                                <th class="py-3 px-4">WhatsApp Phone</th>  
+                                <th class="py-3 px-4">Login Method</th>  
+                                <th class="py-3 px-4">Verified Date</th>  
+                            </tr>  
+                        </thead>  
+                        <tbody id="admin-customers-tbody" class="divide-y divide-slate-200 dark:divide-[#1e293b] text-sm">  
+                            <!-- Dynamic rows -->  
+                        </tbody>  
+                    </table>  
+                </div>  
+
+                <!-- Admin Activity Table -->  
+                <div id="admin-view-activity" class="overflow-x-auto hidden">  
+                    <table class="w-full text-left border-collapse">  
+                        <thead>  
+                            <tr class="border-b border-slate-200 dark:border-[#1e293b] text-xs font-semibold uppercase tracking-wider text-slate-500">  
+                                <th class="py-3 px-4">Admin Name</th>  
+                                <th class="py-3 px-4">Phone Number</th>  
+                                <th class="py-3 px-4">Login Timestamp</th>  
+                            </tr>  
+                        </thead>  
+                        <tbody id="admin-activity-tbody" class="divide-y divide-slate-200 dark:divide-[#1e293b] text-sm">  
+                            <!-- Dynamic rows -->  
+                        </tbody>  
+                    </table>  
+                </div>  
+            </div>  
+        </div>  
+    </section>  
+
+</main>  
+
+<div id="review-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">  
+    <div class="app-card border rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl fade-in relative">  
+        <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-200 dark:border-[#1e293b]">  
+            <h3 class="text-lg font-bold flex items-center gap-2">  
+                <span>📋</span> Review Your Order  
+            </h3>  
+            <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>  
+        </div>  
+        <div id="review-content" class="space-y-4 text-sm mb-8"></div>  
+        <div class="flex items-center gap-3">  
+            <button type="button" onclick="closeReviewModal()" class="flex-1 py-3 rounded-2xl app-input border font-semibold transition">Edit</button>  
+            <button type="button" onclick="submitFinalOrder()" class="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-lg shadow-indigo-600/30">Confirm & Place ✨</button>  
+        </div>  
+    </div>  
+</div>  
+
+<!-- ORDER SUCCESS MODAL -->  
+<div id="success-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">  
+    <div class="app-card border rounded-3xl max-w-md w-full p-8 shadow-2xl text-center fade-in">  
+        <div class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-500 flex items-center justify-center text-3xl mx-auto mb-5 shadow-lg shadow-emerald-500/20">  
+            <i class="fa-solid fa-check"></i>  
+        </div>  
+        <h3 class="text-2xl font-bold mb-2">Order Placed Successfully! 🎉</h3>  
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Your order has been recorded. Dispatch details via WhatsApp.</p>  
+          
+        <div id="success-order-id" class="inline-block app-input border px-4 py-2.5 rounded-2xl text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 mb-6">  
+            Order ID: #---  
+        </div>  
+
+        <div class="space-y-3">  
+            <button onclick="sendOrderOnWhatsApp()" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">  
+                <i class="fa-brands fa-whatsapp text-lg"></i> 💬 Send Order on WhatsApp  
+            </button>  
+            <div class="grid grid-cols-2 gap-3">  
+                <button onclick="closeSuccessModalAndNew()" class="py-3 rounded-2xl app-input border text-xs font-semibold transition">  
+                    ⚡ Create New Order  
+                </button>  
+                <button onclick="closeSuccessModalAndView()" class="py-3 rounded-2xl bg-indigo-50 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-xs font-semibold transition">  
+                    📦 View My Orders  
+                </button>  
+            </div>  
+        </div>  
+    </div>  
+</div>  
+
+<!-- AI HELP AGENT CHATBOT MODAL -->  
+<div id="help-agent-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">  
+    <div class="app-card border rounded-3xl max-w-md w-full p-6 shadow-2xl fade-in flex flex-col h-[500px]">  
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-[#1e293b]">  
+            <div class="flex items-center gap-3">  
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center text-lg"><i class="fa-solid fa-headset"></i></div>  
+                <div>  
+                    <h4 class="font-bold text-sm">QuickOrder AI Assistant 🤖</h4>  
+                    <span class="text-[10px] text-emerald-500 font-medium">● Online • Merchant Support</span>  
+                </div>  
+            </div>  
+            <button onclick="closeHelpAgent()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>  
+        </div>  
+
+        <div id="ai-chat-messages" class="flex-grow overflow-y-auto space-y-3 p-3 app-input rounded-2xl text-xs mb-4">  
+            <div class="bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-2xl border border-indigo-200 dark:border-indigo-900/50">  
+                👋 Hello! I am your QuickOrder assistant. How can I help you today? Please choose an option below or type your query:  
+            </div>  
+        </div>  
+
+        <div id="ai-chat-options" class="grid grid-cols-1 gap-2 mb-3">  
+            <button onclick="handleAIChoice('track')" class="p-2.5 rounded-xl app-input border text-xs text-left hover:border-indigo-500 transition">📦 Where is my order?</button>  
+            <button onclick="handleAIChoice('delivery')" class="p-2.5 rounded-xl app-input border text-xs text-left hover:border-indigo-500 transition">🚚 Delivery time details (+7 Days)</button>  
+            <button onclick="handleAIChoice('human')" class="p-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs text-center hover:bg-emerald-500 transition shadow-md">📞 Talk directly to merchant (7031326090)</button>  
+        </div>  
+    </div>  
+</div>  
+
+<!-- MISO STYLE TIMELINE MODAL -->  
+<div id="timeline-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">  
+    <div class="app-card border rounded-3xl max-w-md w-full p-6 shadow-2xl fade-in max-h-[80vh] overflow-y-auto">  
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-[#1e293b]">  
+            <h3 class="font-bold text-base flex items-center gap-2"><span>📈</span> Order Tracking & Updates</h3>  
+            <button onclick="closeTimelineModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>  
+        </div>  
+        <div id="timeline-content" class="space-y-6 py-2">  
+            <!-- Miso style dynamic timeline with down animation and glowing blue active checkmarks -->  
+        </div>  
+    </div>  
+</div>  
+
+<!-- CUSTOM TOAST NOTIFICATION -->  
+<div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">  
+    <div class="app-card border text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 bg-slate-900">  
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>  
+        <span id="toast-message" class="text-sm font-medium">Notification message</span>  
+    </div>  
+</div>  
+
+<!-- Footer -->  
+<footer class="mt-auto border-t py-6 text-center text-xs text-slate-500 app-header">  
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">  
+        <p>&copy; 2026 QuickOrder Store. All rights reserved.</p>  
+        <p class="text-indigo-600 dark:text-indigo-400 font-bold">Merchant Helpline: 7031326090</p>  
+    </div>  
+</footer>  
+
+<script>  
+    // Supabase Configuration  
+    const SUPABASE_URL = 'https://vvpmjlaytheucmbgrtoh.supabase.co';  
+    const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2cG1qbGF5dGhldWNtYmdydG9oIiwicm9sZSI6ImFub24iLCJpYXQiOjM2MDAwMDAwMDB9.placeholder';  
+      
+    let supabaseClient = null;  
+    try {  
+        if (typeof supabase !== 'undefined') {  
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);  
+        }  
+    } catch (e) {  
+        console.warn('Supabase initialization mode:', e);  
+    }  
+
+    let appState = {  
+        orders: [],  
+        customers: [],  
+        adminLogins: [],  
+        currentAdmin: null,  
+        currentUser: null,  
+        uploadedImageUrl: ''  
+    };  
+
+    let tempAuthPayload = null;  
+    let activeReviewOrderData = null;  
+    let selectedTimelineOrderId = null;  
+
+    // Theme Management (Light, Dark, System) - Default Light  
+    function setTheme(theme) {  
+        const body = document.body;  
+        body.classList.remove('light', 'dark');  
+        if (theme === 'system') {  
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;  
+            body.classList.add(prefersDark ? 'dark' : 'light');  
+        } else {  
+            body.classList.add(theme);  
+        }  
+        localStorage.setItem('quickorder_theme', theme);  
+        const selector = document.getElementById('theme-selector');  
+        if (selector) selector.value = theme;  
+    }  
+
+    function changeTheme(val) {  
+        setTheme(val);  
+    }  
+
+    // Voice Confirmation + Melodic Chime  
+    function playVoiceConfirmation(orderId) {  
+        try {  
+            const AudioContext = window.AudioContext || window.webkitAudioContext;  
+            if (AudioContext) {  
+                const ctx = new AudioContext();  
+                const now = ctx.currentTime;  
+                  
+                const osc1 = ctx.createOscillator();  
+                const gain1 = ctx.createGain();  
+                osc1.type = 'sine';  
+                osc1.frequency.setValueAtTime(523.25, now);  
+                gain1.gain.setValueAtTime(0.2, now);  
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);  
+                osc1.connect(gain1);  
+                gain1.connect(ctx.destination);  
+                osc1.start(now);  
+                osc1.stop(now + 0.3);  
+
+                const osc2 = ctx.createOscillator();  
+                const gain2 = ctx.createGain();  
+                osc2.type = 'sine';  
+                osc2.frequency.setValueAtTime(783.99, now + 0.15);  
+                gain2.gain.setValueAtTime(0.2, now + 0.15);  
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);  
+                osc2.connect(gain2);  
+                gain2.connect(ctx.destination);  
+                osc2.start(now + 0.15);  
+                osc2.stop(now + 0.5);  
+            }  
+
+            if ('speechSynthesis' in window) {  
+                window.speechSynthesis.cancel();  
+                const utterance = new SpeechSynthesisUtterance("Order placed successfully. Your order ID is " + orderId);  
+                utterance.rate = 1.0;  
+                utterance.pitch = 1.0;  
+                window.speechSynthesis.speak(utterance);  
+            }  
+        } catch (err) {  
+            console.log('Voice confirmation playback error:', err);  
+        }  
+    }  
+
+    window.addEventListener('DOMContentLoaded', async () => {  
+        const savedTheme = localStorage.getItem('quickorder_theme') || 'light';  
+        setTheme(savedTheme);  
+
+        // Calculate auto +7 days delivery date  
+        const deliveryDate = new Date();  
+        deliveryDate.setDate(deliveryDate.getDate() + 7);  
+        const formattedDate = deliveryDate.toISOString().split('T')[0];  
+        const dateDisplayEl = document.getElementById('del-date-display');  
+        if (dateDisplayEl) dateDisplayEl.value = `${formattedDate} (Estimated Delivery in 7 Days)`;  
+
+        await loadAllDataFromSupabase();  
+        checkExistingUserSession();  
+        checkExistingAdminSession();  
+    });  
+
+    function toggleMobileMenu() {  
+        const menu = document.getElementById('mobile-menu');  
+        menu.classList.toggle('hidden');  
+    }  
+
+    function switchTab(tabId) {  
+        if (!appState.currentUser && tabId !== 'admin') {  
+            openAuthModal();  
+            return;  
+        }  
+
+        ['home', 'profile', 'admin'].forEach(t => {  
+            const sec = document.getElementById(`tab-${t}`);  
+            if (sec) sec.classList.add('hidden');  
+        });  
+
+        const activeSec = document.getElementById(`tab-${tabId}`);  
+        if (activeSec) activeSec.classList.remove('hidden');  
+
+        if (tabId === 'profile') {  
+            renderCustomerMyOrders();  
+        }  
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });  
+    }  
+
+    function switchAdminTab(subTab) {  
+        ['orders', 'customers', 'activity'].forEach(st => {  
+            const view = document.getElementById(`admin-view-${st}`);  
+            const btn = document.getElementById(`adm-tab-${st}`);  
+            if (view) view.classList.add('hidden');  
+            if (btn) {  
+                btn.classList.remove('bg-indigo-600', 'text-white');  
+                btn.classList.add('app-input', 'text-slate-600', 'dark:text-slate-400');  
+            }  
+        });  
+
+        const targetView = document.getElementById(`admin-view-${subTab}`);  
+        const targetBtn = document.getElementById(`adm-tab-${subTab}`);  
+        if (targetView) targetView.classList.remove('hidden');  
+        if (targetBtn) {  
+            targetBtn.classList.remove('app-input', 'text-slate-600', 'dark:text-slate-400');  
+            targetBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');  
+        }  
+    }  
+
+    function showToast(message, type = 'success') {  
+        const toast = document.getElementById('toast-notification');  
+        const msgEl = document.getElementById('toast-message');  
+        const iconEl = document.getElementById('toast-icon');  
+
+        msgEl.textContent = message;  
+        if (type === 'success') {  
+            iconEl.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';  
+        } else {  
+            iconEl.className = 'fa-solid fa-circle-exclamation text-rose-400 text-lg';  
+        }  
+
+        toast.classList.remove('translate-y-20', 'opacity-0');  
+        toast.classList.add('translate-y-0', 'opacity-100');  
+
+        setTimeout(() => {  
+            toast.classList.remove('translate-y-0', 'opacity-100');  
+            toast.classList.add('translate-y-20', 'opacity-0');  
+        }, 3500);  
+    }  
+
+    // CUSTOMER WHATSAPP OTP AUTHENTICATION FLOW  
+    function openAuthModal() {  
+        resetAuthModal();  
+        document.getElementById('auth-modal').classList.remove('hidden');  
+    }  
+
+    function closeAuthModal() {  
+        document.getElementById('auth-modal').classList.add('hidden');  
+    }  
+
+    function resetAuthModal() {  
+        document.getElementById('auth-step-method').classList.remove('hidden');  
+        document.getElementById('auth-step-otp').classList.add('hidden');  
+        const nameEl = document.getElementById('auth-input-name');  
+        const phoneEl = document.getElementById('auth-input-phone');  
+        const otpCodeEl = document.getElementById('auth-input-otp-code');  
+        if (nameEl) nameEl.value = '';  
+        if (phoneEl) phoneEl.value = '';  
+        if (otpCodeEl) otpCodeEl.value = '';  
+        tempAuthPayload = null;  
+    }  
+
+    function requestWhatsAppOTP(event) {  
+        event.preventDefault();  
+        const name = document.getElementById('auth-input-name').value.trim();  
+        const phone = document.getElementById('auth-input-phone').value.trim();  
+
+        if (phone.length < 10) {  
+            showToast('Please enter a valid 10-digit mobile number.', 'error');  
+            return;  
+        }  
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();  
+        tempAuthPayload = {  
+            name: name,  
+            phone: phone,  
+            login_method: 'WhatsApp OTP',  
+            otp: otp,  
+            created_at: new Date().toISOString()  
+        };  
+
+        const whatsappMessage = `🔐 *QuickOrder Login Verification*\n\nHello ${name},\nYour WhatsApp OTP Code is: *${otp}*.\n\nSent from Merchant: *7031326090*`;  
+        const waUrl = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(whatsappMessage)}`;  
+          
+        document.getElementById('otp-destination-label').textContent = `OTP code dispatched on WhatsApp (+91 ${phone}) from 7031326090`;  
+
+        document.getElementById('auth-step-method').classList.add('hidden');  
+        document.getElementById('auth-step-otp').classList.remove('hidden');  
+          
+        window.open(waUrl, '_blank');  
+        showToast('WhatsApp OTP automatically sent from 7031326090!');  
+    }  
+
+    async function verifyWhatsAppOTP(event) {  
+        event.preventDefault();  
+        const enteredOtp = document.getElementById('auth-input-otp-code').value.trim();  
+
+        if (!tempAuthPayload || enteredOtp !== tempAuthPayload.otp) {  
+            showToast('Invalid verification OTP entered.', 'error');  
+            return;  
+        }  
+
+        const userData = {  
+            name: tempAuthPayload.name,  
+            phone: tempAuthPayload.phone,  
+            login_method: tempAuthPayload.login_method,  
+            created_at: tempAuthPayload.created_at  
+        };  
+
+        appState.currentUser = userData;  
+        localStorage.setItem('quickorder_current_user', JSON.stringify(userData));  
+
+        let existing = appState.customers.find(c => c.phone === userData.phone);  
+        if (!existing) {  
+            appState.customers.push(userData);  
+            if (supabaseClient) {  
+                try {  
+                    await supabaseClient.from('customers').insert([userData]);  
+                } catch (e) {  
+                    console.log('Customer sync note:', e);  
+                }  
+            }  
+        }  
+
+        saveLocalCache();  
+        updateAuthUI();  
+        closeAuthModal();  
+        showToast(`Successfully verified & logged in as ${userData.name}!`);  
+
+        // Auto-fill order form fields and lock them  
+        const nameEl = document.getElementById('cust-name');  
+        const phoneEl = document.getElementById('cust-phone');  
+        if (nameEl) nameEl.value = userData.name;  
+        if (phoneEl) phoneEl.value = userData.phone;  
+
+        switchTab('home');  
+    }  
+
+    function handleCustomerLogout() {  
+        appState.currentUser = null;  
+        localStorage.removeItem('quickorder_current_user');  
+        updateAuthUI();  
+        openAuthModal();  
+        showToast('Logged out successfully.');  
+    }  
+
+    function checkExistingUserSession() {  
+        const saved = localStorage.getItem('quickorder_current_user');  
+        if (saved) {  
+            try {  
+                appState.currentUser = JSON.parse(saved);  
+                updateAuthUI();  
+                closeAuthModal();  
+
+                const nameEl = document.getElementById('cust-name');  
+                const phoneEl = document.getElementById('cust-phone');  
+                if (nameEl) nameEl.value = appState.currentUser.name;  
+                if (phoneEl) phoneEl.value = appState.currentUser.phone;  
+            } catch (e) {  
+                openAuthModal();  
+            }  
+        } else {  
+            openAuthModal();  
+        }  
+    }  
+
+    function updateAuthUI() {  
+        const badge = document.getElementById('auth-user-badge');  
+        const loginBtn = document.getElementById('auth-login-btn');  
+        const nameDisplay = document.getElementById('auth-name-display');  
+        const avatarLetter = document.getElementById('auth-avatar-letter');  
+
+        if (appState.currentUser) {  
+            if (badge) { badge.classList.remove('hidden'); badge.classList.add('flex'); }  
+            if (loginBtn) loginBtn.classList.add('hidden');  
+            if (nameDisplay) nameDisplay.textContent = appState.currentUser.name;  
+            if (avatarLetter) avatarLetter.textContent = appState.currentUser.name.charAt(0).toUpperCase();  
+              
+            const profName = document.getElementById('profile-user-name');  
+            const profPhone = document.getElementById('profile-user-phone');  
+            if (profName) profName.textContent = appState.currentUser.name;  
+            if (profPhone) profPhone.textContent = appState.currentUser.phone;  
+        } else {  
+            if (badge) { badge.classList.remove('flex'); badge.classList.add('hidden'); }  
+            if (loginBtn) loginBtn.classList.remove('hidden');  
+        }  
+    }  
+
+    function fillDemoData() {  
+        if (!appState.currentUser) return;  
+        document.getElementById('cust-name').value = appState.currentUser.name;  
+        document.getElementById('cust-phone').value = appState.currentUser.phone;  
+        document.getElementById('cust-address').value = 'Station Road, Main Bazaar, City Center';  
+        document.getElementById('prod-name').value = 'Wireless Bluetooth Earbuds Pro';  
+        document.getElementById('prod-price').value = '1299';  
+        document.getElementById('order-note').value = 'Please deliver safely in afternoon.';  
+        showToast('Demo data filled successfully!');  
+    }  
+
+    async function previewImage(event) {  
+        const file = event.target.files[0];  
+        if (!file) return;  
+
+        document.getElementById('file-chosen-text').textContent = file.name;  
+        const reader = new FileReader();  
+        reader.onload = function(e) {  
+            appState.uploadedImageUrl = e.target.result;  
+            document.getElementById('image-preview').src = e.target.result;  
+            document.getElementById('image-preview-container').classList.remove('hidden');  
+        };  
+        reader.readAsDataURL(file);  
+    }  
+
+    function openReviewModal() {  
+        const name = document.getElementById('cust-name').value.trim();  
+        const phone = document.getElementById('cust-phone').value.trim();  
+        const address = document.getElementById('cust-address').value.trim();  
+        const prodName = document.getElementById('prod-name').value.trim();  
+        const prodPrice = document.getElementById('prod-price').value.trim();  
+
+        if (!name || !phone || !address || !prodName || !prodPrice || !appState.uploadedImageUrl) {  
+            showToast('Please fill all mandatory fields and upload a product image!', 'error');  
+            return;  
+        }  
+
+        activeReviewOrderData = {  
+            name,  
+            phone,  
+            address,  
+            prodName,  
+            prodPrice,  
+            imageUrl: appState.uploadedImageUrl,  
+            note: document.getElementById('order-note').value.trim()  
+        };  
+
+        const html = `  
+            <div class="flex items-center gap-4 bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-2xl border border-indigo-200 dark:border-indigo-900/50">  
+                <img src="${activeReviewOrderData.imageUrl}" class="w-14 h-14 rounded-xl object-cover border" alt="Product">  
+                <div>  
+                    <h4 class="font-bold text-sm">${activeReviewOrderData.prodName}</h4>  
+                    <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">₹${activeReviewOrderData.prodPrice}</span>  
+                </div>  
+            </div>  
+            <div class="space-y-2 text-xs">  
+                <div class="flex justify-between py-1 border-b border-slate-200 dark:border-[#1e293b]">  
+                    <span class="text-slate-500">Customer:</span>  
+                    <span class="font-semibold">${activeReviewOrderData.name} (+91 ${activeReviewOrderData.phone})</span>  
+                </div>  
+                <div class="flex justify-between py-1 border-b border-slate-200 dark:border-[#1e293b]">  
+                    <span class="text-slate-500">Delivery Address:</span>  
+                    <span class="font-semibold text-right max-w-[220px] truncate">${activeReviewOrderData.address}</span>  
+                </div>  
+                <div class="flex justify-between py-1">  
+                    <span class="text-slate-500">Estimated Delivery:</span>  
+                    <span class="font-semibold text-emerald-500">+7 Days From Today</span>  
+                </div>  
+            </div>  
+        `;  
+
+        document.getElementById('review-content').innerHTML = html;  
+        document.getElementById('review-modal').classList.remove('hidden');  
+    }  
+
+    function closeReviewModal() {  
+        document.getElementById('review-modal').classList.add('hidden');  
+    }  
+
+    async function submitFinalOrder() {  
+        closeReviewModal();  
+        const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);  
+        const deliveryDate = new Date();  
+        deliveryDate.setDate(deliveryDate.getDate() + 7);  
+
+        const newOrder = {  
+            id: orderId,  
+            customer_name: activeReviewOrderData.name,  
+            customer_phone: activeReviewOrderData.phone,  
+            address: activeReviewOrderData.address,  
+            product_name: activeReviewOrderData.prodName,  
+            price: parseFloat(activeReviewOrderData.prodPrice),  
+            image_url: activeReviewOrderData.imageUrl,  
+            note: activeReviewOrderData.note,  
+            status: 'Pending',  
+            timeline: [  
+                { status: 'Order Placed', time: new Date().toLocaleString(), note: 'Order registered successfully.' }  
+            ],  
+            delivery_date: deliveryDate.toISOString().split('T')[0],  
+            created_at: new Date().toISOString()  
+        };  
+
+        appState.orders.unshift(newOrder);  
+        saveLocalCache();  
+
+        if (supabaseClient) {  
+            try {  
+                await supabaseClient.from('orders').insert([newOrder]);  
+            } catch (e) {  
+                console.log('Supabase order sync note:', e);  
+            }  
+        }  
+
+        playVoiceConfirmation(orderId);  
+
+        document.getElementById('success-order-id').textContent = `Order ID: #${orderId}`;  
+        document.getElementById('success-modal').classList.remove('hidden');  
+        window.lastCreatedOrder = newOrder;  
+    }  
+
+    function sendOrderOnWhatsApp() {  
+        if (!window.lastCreatedOrder) return;  
+        const o = window.lastCreatedOrder;  
+        const msg = `🛍️ *NEW QUICK ORDER* ⚡\n\n🆔 *Order ID:* #${o.id}\n👤 *Customer:* ${o.customer_name}\n📞 *Phone:* ${o.customer_phone}\n📍 *Address:* ${o.address}\n📦 *Product:* ${o.product_name}\n💰 *Price:* ₹${o.price}\n📅 *Expected Delivery:* ${o.delivery_date} (+7 Days)\n📝 *Note:* ${o.note || 'None'}\n\n✨ *Sent from QuickOrder Store*`;  
+        const waUrl = `https://api.whatsapp.com/send?phone=917031326090&text=${encodeURIComponent(msg)}`;  
+        window.open(waUrl, '_blank');  
+    }  
+
+    function closeSuccessModalAndNew() {  
+        document.getElementById('success-modal').classList.add('hidden');  
+        document.getElementById('order-form').reset();  
+        document.getElementById('image-preview-container').classList.add('hidden');  
+        document.getElementById('file-chosen-text').textContent = 'Choose product image required...';  
+        updateAuthUI();  
+        switchTab('home');  
+    }  
+
+    function closeSuccessModalAndView() {  
+        document.getElementById('success-modal').classList.add('hidden');  
+        switchTab('profile');  
+    }  
+
+    // CUSTOMER MY PANEL & LIVE TIMELINE (Miso style with downward animation & blue checkmarks)  
+    function renderCustomerMyOrders() {  
+        const listEl = document.getElementById('customer-my-orders-list');  
+        if (!appState.currentUser) {  
+            listEl.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Please login to view your orders.</div>`;  
+            return;  
+        }  
+
+        const myOrders = appState.orders.filter(o => o.customer_phone === appState.currentUser.phone);  
+        if (myOrders.length === 0) {  
+            listEl.innerHTML = `  
+                <div class="text-center py-12 app-input rounded-2xl border">  
+                    <div class="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-600/20 text-indigo-500 flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-solid fa-box-open"></i></div>  
+                    <h4 class="font-bold text-sm">No Orders Yet</h4>  
+                    <p class="text-xs text-slate-500 mt-1">Place your first quick order from the New Order tab!</p>  
+                    <button onclick="switchTab('home')" class="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-md">⚡ Place Order Now</button>  
+                </div>  
+            `;  
+            return;  
+        }  
+
+        let html = '';  
+        myOrders.forEach(o => {  
+            let badgeColor = 'bg-amber-500/10 text-amber-500 border-amber-500/20';  
+            if (o.status === 'Confirmed') badgeColor = 'bg-blue-500/10 text-blue-500 border-blue-500/20';  
+            if (o.status === 'Processing') badgeColor = 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20';  
+            if (o.status === 'Out for Delivery') badgeColor = 'bg-purple-500/10 text-purple-500 border-purple-500/20';  
+            if (o.status === 'Delivered') badgeColor = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';  
+            if (o.status === 'Cancelled') badgeColor = 'bg-rose-500/10 text-rose-500 border-rose-500/20';  
+
+            html += `  
+                <div class="app-card border rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">  
+                    <div class="flex items-center gap-4">  
+                        <img src="${o.image_url || 'https://placehold.co/100x100/6366f1/ffffff?text=Item'}" class="w-16 h-16 rounded-xl object-cover border flex-shrink-0" alt="Item">  
+                        <div>  
+                            <div class="flex items-center gap-2 mb-1">  
+                                <span class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">#${o.id}</span>  
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${badgeColor}">${o.status}</span>  
+                            </div>  
+                            <h4 class="font-bold text-sm">${o.product_name}</h4>  
+                            <p class="text-xs text-slate-500">₹${o.price} • Delivery by ${o.delivery_date}</p>  
+                        </div>  
+                    </div>  
+                    <div class="flex items-center gap-2 self-end sm:self-center">  
+                        ${o.status === 'Out for Delivery' ? `<button onclick="shareLiveLocation('${o.id}')" class="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm flex items-center gap-1.5"><i class="fa-solid fa-location-arrow"></i> Share GPS Live Location 📍</button>` : ''}  
+                        <button onclick="openTimelineModal('${o.id}')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-50 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 transition flex items-center gap-1.5 shadow-sm">  
+                            <i class="fa-solid fa-timeline"></i> See All Updates 📈  
+                        </button>  
+                    </div>  
+                </div>  
+            `;  
+        });  
+        listEl.innerHTML = html;  
+    }  
+
+    // GPS Live Location Permission & WhatsApp Share  
+    function shareLiveLocation(orderId) {  
+        const order = appState.orders.find(o => o.id === orderId);  
+        if (!order) return;  
+
+        showToast('Requesting GPS permission from your browser...');  
+
+        if (!navigator.geolocation) {  
+            showToast('Geolocation is not supported by your browser.', 'error');  
+            return;  
+        }  
+
+        navigator.geolocation.getCurrentPosition(  
+            (position) => {  
+                const lat = position.coords.latitude;  
+                const lng = position.coords.longitude;  
+                const mapsLink = `https://maps.google.com/?q=${lat},${lng}`;  
+                const msg = `📍 *CUSTOMER GPS LIVE LOCATION* 🛵\n\n🆔 *Order ID:* #${order.id}\n👤 *Customer:* ${order.customer_name}\n📞 *Phone:* ${order.customer_phone}\n🗺️ *Google Maps Live GPS:* ${mapsLink}\n\n✨ *Out for Delivery Live Tracking*`;  
+                const waUrl = `https://api.whatsapp.com/send?phone=917031326090&text=${encodeURIComponent(msg)}`;  
+                window.open(waUrl, '_blank');  
+                showToast('GPS live location successfully sent to merchant WhatsApp!');  
+            },  
+            (error) => {  
+                console.warn('Geolocation error:', error);  
+                showToast('GPS permission denied or unavailable. Please enable location services.', 'error');  
+            },  
+            { timeout: 10000, enableHighAccuracy: true }  
+        );  
+    }  
+
+    function openTimelineModal(orderId) {  
+        selectedTimelineOrderId = orderId;  
+        const order = appState.orders.find(o => o.id === orderId);  
+        if (!order) return;  
+
+        const timelineEl = document.getElementById('timeline-content');  
+        let html = `  
+            <div class="mb-4 pb-3 border-b border-slate-200 dark:border-[#1e293b]">  
+                <span class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">#${order.id}</span>  
+                <h4 class="font-bold text-sm">${order.product_name}</h4>  
+                <p class="text-xs text-slate-500">Status: <span class="font-semibold text-emerald-500">${order.status}</span></p>  
+            </div>  
+            <div class="space-y-4 relative pl-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-blue-500">  
+        `;  
+
+        if (order.timeline && order.timeline.length > 0) {  
+            order.timeline.forEach((t, idx) => {  
+                const isLatest = idx === order.timeline.length - 1;  
+                html += `  
+                    <div class="relative timeline-step-anim">  
+                        <div class="absolute -left-6 top-1.5 w-3.5 h-3.5 rounded-full ${isLatest ? 'bg-blue-600 ring-4 ring-blue-500/20 flex items-center justify-center text-[8px] text-white' : 'bg-blue-500 flex items-center justify-center text-[8px] text-white'}">  
+                            <i class="fa-solid fa-check"></i>  
+                        </div>  
+                        <div class="app-input border rounded-2xl p-3 text-xs">  
+                            <div class="flex items-center justify-between font-bold mb-1">  
+                                <span class="text-blue-600 dark:text-blue-400">${t.status}</span>  
+                                <span class="text-[10px] text-slate-400">${t.time}</span>  
+                            </div>  
+                            <p class="text-slate-500 dark:text-slate-400">${t.note}</p>  
+                        </div>  
+                    </div>  
+                `;  
+            });  
+        } else {  
+            html += `<p class="text-xs text-slate-500">No updates logged yet.</p>`;  
+        }  
+
+        html += `</div>`;  
+        timelineEl.innerHTML = html;  
+        document.getElementById('timeline-modal').classList.remove('hidden');  
+    }  
+
+    function closeTimelineModal() {  
+        document.getElementById('timeline-modal').classList.add('hidden');  
+    }  
+
+    // AI Help Agent Chatbot  
+    function openHelpAgent() {  
+        document.getElementById('help-agent-modal').classList.remove('hidden');  
+    }  
+
+    function closeHelpAgent() {  
+        document.getElementById('help-agent-modal').classList.add('hidden');  
+    }  
+
+    function handleAIChoice(type) {  
+        const chatMsgs = document.getElementById('ai-chat-messages');  
+        let userText = '';  
+        let botReply = '';  
+
+        if (type === 'track') {  
+            userText = 'Where is my order?';  
+            botReply = '📦 To check your order status, please visit your **My Panel** tab where all active and past orders are listed with live status and updates!';  
+        } else if (type === 'delivery') {  
+            userText = 'Delivery time details';  
+            botReply = '🚚 All orders are automatically scheduled for delivery within **7 days** from the order placement date. You will receive WhatsApp updates as soon as it is out for delivery!';  
+        } else if (type === 'human') {  
+            userText = 'Talk directly to merchant (7031326090)';  
+            botReply = '📞 Connecting you instantly to our merchant helpline on WhatsApp (7031326090)...';  
+            setTimeout(() => {  
+                window.open('https://api.whatsapp.com/send?phone=917031326090&text=Hi%20QuickOrder%20Merchant,%20I%20need%20help%20with%20my%20order.', '_blank');  
+            }, 1000);  
+        }  
+
+        chatMsgs.innerHTML += `  
+            <div class="text-right my-2">  
+                <span class="inline-block bg-indigo-600 text-white p-2.5 rounded-2xl max-w-[85%] text-left">${userText}</span>  
+            </div>  
+            <div class="bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 my-2">  
+                ${botReply}  
+            </div>  
+        `;  
+        chatMsgs.scrollTop = chatMsgs.scrollHeight;  
+    }  
+
+    // ADMIN LOGIN & DASHBOARD  
+    async function handleAdminLogin(event) {  
+        event.preventDefault();  
+        const name = document.getElementById('admin-name').value.trim();  
+        const phone = document.getElementById('admin-phone').value.trim();  
+        const pass = document.getElementById('admin-pass').value.trim();  
+
+        if (phone.length < 10) {  
+            showToast('Please enter a valid 10-digit mobile number.', 'error');  
+            return;  
+        }  
+
+        if (pass !== '707') {  
+            showToast('Invalid admin passcode!', 'error');  
+            return;  
+        }  
+
+        const adminData = {  
+            name: name,  
+            phone: phone,  
+            login_time: new Date().toLocaleString()  
+        };  
+
+        appState.currentAdmin = adminData;  
+        appState.adminLogins.push(adminData);  
+        localStorage.setItem('quickorder_current_admin', JSON.stringify(adminData));  
+        saveLocalCache();  
+
+        if (supabaseClient) {  
+            try {  
+                await supabaseClient.from('admin_logins').insert([adminData]);  
+            } catch (e) {  
+                console.log('Admin login sync note:', e);  
+            }  
+        }  
+
+        showToast(`Welcome back, Admin ${name}!`);  
+        loadAdminDashboard();  
+    }  
+
+    function checkExistingAdminSession() {  
+        const saved = localStorage.getItem('quickorder_current_admin');  
+        if (saved) {  
+            try {  
+                appState.currentAdmin = JSON.parse(saved);  
+                loadAdminDashboard();  
+            } catch (e) {  
+                console.log(e);  
+            }  
+        }  
+    }  
+
+    function handleAdminLogout() {  
+        appState.currentAdmin = null;  
+        localStorage.removeItem('quickorder_current_admin');  
+        document.getElementById('admin-dashboard').classList.add('hidden');  
+        document.getElementById('admin-login-card').classList.remove('hidden');  
+        showToast('Admin logged out.');  
+    }  
+
+    async function loadAdminData() {  
+        await loadAllDataFromSupabase();  
+        loadAdminDashboard();  
+        showToast('Admin dashboard refreshed!');  
+    }  
+
+    function loadAdminDashboard() {  
+        if (!appState.currentAdmin) return;  
+        document.getElementById('admin-login-card').classList.add('hidden');  
+        document.getElementById('admin-dashboard').classList.remove('hidden');  
+        document.getElementById('logged-admin-name').textContent = appState.currentAdmin.name;  
+
+        // Stats  
+        const totalOrders = appState.orders.length;  
+        const totalRevenue = appState.orders.reduce((acc, o) => acc + (o.status !== 'Cancelled' ? o.price : 0), 0);  
+        const totalCustomers = appState.customers.length;  
+        const totalAdminLogins = appState.adminLogins.length;  
+
+        document.getElementById('stat-total-orders').textContent = totalOrders;  
+        document.getElementById('stat-total-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;  
+        document.getElementById('stat-total-customers').textContent = totalCustomers;  
+        document.getElementById('stat-total-admin-logins').textContent = totalAdminLogins;  
+
+        renderAdminOrdersTable();  
+        renderAdminCustomersTable();  
+        renderAdminActivityTable();  
+    }  
+
+    function renderAdminOrdersTable() {  
+        const tbody = document.getElementById('admin-orders-tbody');  
+        const searchVal = document.getElementById('admin-search-input').value.toLowerCase();  
+        const statusFilter = document.getElementById('admin-status-filter').value;  
+
+        const filtered = appState.orders.filter(o => {  
+            const matchSearch = o.id.toLowerCase().includes(searchVal) || o.customer_name.toLowerCase().includes(searchVal) || o.product_name.toLowerCase().includes(searchVal);  
+            const matchStatus = statusFilter === 'ALL' || o.status === statusFilter;  
+            return matchSearch && matchStatus;  
+        });  
+
+        if (filtered.length === 0) {  
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500">No orders found.</td></tr>`;  
+            return;  
+        }  
+
+        let html = '';  
+        filtered.forEach(o => {  
+            const waMsg = `📦 *ORDER STATUS UPDATE* ⚡\n\n🆔 *Order ID:* #${o.id}\n📦 *Product:* ${o.product_name}\n💰 *Price:* ₹${o.price}\n📌 *Current Status:* ${o.status}\n📍 *Delivery Address:* ${o.address}\n\n✨ *Thank you for shopping with QuickOrder!*`;  
+            const waUrl = `https://api.whatsapp.com/send?phone=91${o.customer_phone}&text=${encodeURIComponent(waMsg)}`;  
+
+            html += `  
+                <tr class="border-b border-slate-200 dark:border-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">  
+                    <td class="py-3.5 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">#${o.id}</td>  
+                    <td class="py-3.5 px-4">  
+                        <div class="font-semibold">${o.customer_name}</div>  
+                        <div class="text-xs text-slate-500 font-mono">+91 ${o.customer_phone}</div>  
+                    </td>  
+                    <td class="py-3.5 px-4 font-semibold">${o.product_name}</td>  
+                    <td class="py-3.5 px-4 font-bold">₹${o.price}</td>  
+                    <td class="py-3.5 px-4 space-y-2">  
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="w-full app-input border rounded-xl px-3 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">  
+                            <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>  
+                            <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>  
+                            <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>  
+                            <option value="Out for Delivery" ${o.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>  
+                            <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>  
+                            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>  
+                        </select>  
+                        <div class="flex items-center gap-1.5">  
+                            <input type="text" id="broadcast-input-${o.id}" placeholder="Type update (e.g. Order in warehouse)..." class="w-full app-input border rounded-xl px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">  
+                            <button onclick="broadcastCustomTimeline('${o.id}')" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold whitespace-nowrap shadow-sm flex items-center gap-1">  
+                                <i class="fa-solid fa-paper-plane text-[10px]"></i> Broadcast  
+                            </button>  
+                        </div>  
+                    </td>  
+                    <td class="py-3.5 px-4">  
+                        <a href="${waUrl}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-sm">  
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp 💬  
+                        </a>  
+                    </td>  
+                    <td class="py-3.5 px-4 text-right">  
+                        <button onclick="openTimelineModal('${o.id}')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-50 dark:bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/35 transition shadow-sm">  
+                            View Timeline 📈  
+                        </button>  
+                    </td>  
+                </tr>  
+            `;  
+        });  
+        tbody.innerHTML = html;  
+    }  
+
+    function filterAdminTable() {  
+        renderAdminOrdersTable();  
+    }  
+
+    async function updateOrderStatus(orderId, newStatus) {  
+        const order = appState.orders.find(o => o.id === orderId);  
+        if (!order) return;  
+
+        order.status = newStatus;  
+        if (!order.timeline) order.timeline = [];  
+        order.timeline.push({  
+            status: newStatus,  
+            time: new Date().toLocaleString(),  
+            note: `Order status updated to ${newStatus} by Admin.`  
+        });  
+
+        saveLocalCache();  
+        renderAdminOrdersTable();  
+        showToast(`Order #${orderId} status changed to ${newStatus}!`);  
+
+        if (supabaseClient) {  
+            try {  
+                await supabaseClient.from('orders').update({ status: newStatus, timeline: order.timeline }).eq('id', orderId);  
+            } catch (e) {  
+                console.log(e);  
+            }  
+        }  
+    }  
+
+    async function broadcastCustomTimeline(orderId) {  
+        const inputEl = document.getElementById(`broadcast-input-${orderId}`);  
+        if (!inputEl) return;  
+        const noteText = inputEl.value.trim();  
+        if (!noteText) {  
+            showToast('Please type a broadcast update message first.', 'error');  
+            return;  
+        }  
+
+        const order = appState.orders.find(o => o.id === orderId);  
+        if (!order) return;  
+
+        if (!order.timeline) order.timeline = [];  
+        order.timeline.push({  
+            status: order.status,  
+            time: new Date().toLocaleString(),  
+            note: noteText  
+        });  
+
+        saveLocalCache();  
+        inputEl.value = '';  
+        renderAdminOrdersTable();  
+        showToast(`Broadcast update successfully broadcasted to Order #${orderId}!`);  
+
+        if (supabaseClient) {  
+            try {  
+                await supabaseClient.from('orders').update({ timeline: order.timeline }).eq('id', orderId);  
+            } catch (e) {  
+                console.log(e);  
+            }  
+        }  
+    }  
+
+    function renderAdminCustomersTable() {  
+        const tbody = document.getElementById('admin-customers-tbody');  
+        if (appState.customers.length === 0) {  
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-500">No registered customers yet.</td></tr>`;  
+            return;  
+        }  
+
+        let html = '';  
+        appState.customers.forEach(c => {  
+            html += `  
+                <tr class="border-b border-slate-200 dark:border-[#1e293b]">  
+                    <td class="py-3.5 px-4 font-semibold">${c.name}</td>  
+                    <td class="py-3.5 px-4 font-mono">+91 ${c.phone}</td>  
+                    <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500">${c.login_method || 'WhatsApp OTP'}</span></td>  
+                    <td class="py-3.5 px-4 text-xs text-slate-500">${new Date(c.created_at || Date.now()).toLocaleString()}</td>  
+                </tr>  
+            `;  
+        });  
+        tbody.innerHTML = html;  
+    }  
+
+    function renderAdminActivityTable() {  
+        const tbody = document.getElementById('admin-activity-tbody');  
+        if (appState.adminLogins.length === 0) {  
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-slate-500">No admin login activity recorded yet.</td></tr>`;  
+            return;  
+        }  
+
+        let html = '';  
+        appState.adminLogins.forEach(a => {  
+            html += `  
+                <tr class="border-b border-slate-200 dark:border-[#1e293b]">  
+                    <td class="py-3.5 px-4 font-semibold text-indigo-600 dark:text-indigo-400">${a.name}</td>  
+                    <td class="py-3.5 px-4 font-mono">+91 ${a.phone}</td>  
+                    <td class="py-3.5 px-4 text-xs text-slate-500">${a.login_time}</td>  
+                </tr>  
+            `;  
+        });  
+        tbody.innerHTML = html;  
+    }  
+
+    function exportDataBackup() {  
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));  
+        const dlAnchor = document.createElement('a');  
+        dlAnchor.setAttribute("href", dataStr);  
+        dlAnchor.setAttribute("download", "quickorder_backup_2026.json");  
+        document.body.appendChild(dlAnchor);  
+        dlAnchor.click();  
+        dlAnchor.remove();  
+        showToast('Backup data exported successfully!');  
+    }  
+
+    async function loadAllDataFromSupabase() {  
+        if (supabaseClient) {  
+            try {  
+                const { data: ords } = await supabaseClient.from('orders').select('*');  
+                if (ords) appState.orders = ords;  
+
+                const { data: custs } = await supabaseClient.from('customers').select('*');  
+                if (custs) appState.customers = custs;  
+
+                const { data: logs } = await supabaseClient.from('admin_logins').select('*');  
+                if (logs) appState.adminLogins = logs;  
+            } catch (e) {  
+                console.log('Supabase fetch fallback to local cache:', e);  
+                loadLocalCache();  
+            }  
+        } else {  
+            loadLocalCache();  
+        }  
+    }  
+
+    function saveLocalCache() {  
+        localStorage.setItem('quickorder_orders', JSON.stringify(appState.orders));  
+        localStorage.setItem('quickorder_customers', JSON.stringify(appState.customers));  
+        localStorage.setItem('quickorder_admin_logins', JSON.stringify(appState.adminLogins));  
+    }  
+
+    function loadLocalCache() {  
+        const ords = localStorage.getItem('quickorder_orders');  
+        if (ords) appState.orders = JSON.parse(ords);  
+
+        const custs = localStorage.getItem('quickorder_customers');  
+        if (custs) appState.customers = JSON.parse(custs);  
+
+        const logs = localStorage.getItem('quickorder_admin_logins');  
+        if (logs) appState.adminLogins = JSON.parse(logs);  
+    }  
 </script>
-</body>
-</html>
+
+</body>  
+</html>  
